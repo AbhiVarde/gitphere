@@ -1,46 +1,47 @@
-# gh globe
+# Gitphere
 
-paste a github username, see where the people they follow are based, plotted on a cobe globe.
+Paste a GitHub username and see where the people they follow are based, plotted on a Cobe globe.
 
-## stack
+## Stack
 
-- next.js 16 (app router) + typescript
-- shadcn/ui primitives (button, input, card) — hand-added, not pulled from the registry
-- [cobe](https://cobe.vercel.app) v2 for the webgl globe
-- github rest api for the following list + per-user location
-- nominatim (openstreetmap) for free geocoding, with an in-memory cache
+* Next.js 16 with App Router and TypeScript
+* shadcn/ui primitives for Button, Input, and Card, added manually
+* [Cobe](https://cobe.vercel.app) v2 for the WebGL globe
+* GitHub REST API for the following list and user locations
+* Nominatim with OpenStreetMap for free geocoding, with an in-memory cache
 
-## run it
+## Run it
 
 ```bash
 npm install
 npm run dev
 ```
 
-open localhost:3000, type a username (e.g. `AbhiVarde`), hit go.
+Open `localhost:3000`, enter a GitHub username such as `AbhiVarde`, and hit **Go**.
 
-## optional: raise github rate limits
+## Optional: Increase GitHub Rate Limits
 
-unauthenticated github requests are capped at 60/hr, shared across the app. for real use, add a token:
+Unauthenticated GitHub requests are limited to 60 requests per hour, shared across the app. For higher limits, add a GitHub token:
 
 ```bash
 # .env.local
+
 GITHUB_TOKEN=ghp_xxxxxxxxxxxx
 ```
 
-a token with no scopes (public read) is enough, since we're only reading public profiles.
+A token with no scopes is enough because the app only reads public profiles.
 
-## how it works
+## How It Works
 
-1. `GET /api/following?username=X` hits `GET /users/{username}/following`
-2. for each user in the list, fetches `GET /users/{login}` to read their `location` bio field
-3. users with no location set are dropped (github doesn't have a structured location field, it's free text)
-4. each unique location string is geocoded once via nominatim and cached in memory for the life of the server process
-5. resolved `{ lat, lng }` pairs are passed to the globe as markers
+1. `GET /api/following?username=X` calls GitHub's `GET /users/{username}/following` endpoint.
+2. For each user, the app fetches `GET /users/{login}` to read their profile location.
+3. Users without a location are skipped because GitHub stores locations as free text.
+4. Each unique location is geocoded once through Nominatim and cached in memory.
+5. Resolved latitude and longitude coordinates are passed to the globe as markers.
 
-## known limitations
+## Known Limitations
 
-- `location` is whatever the user typed into their profile, not gps — "earth", "remote", or a made-up place will fail to geocode and get silently dropped
-- the in-memory geocode cache resets on every server restart / cold start on serverless — fine for this scale, would move to redis or a db table if this needed to run at real traffic
-- nominatim's usage policy caps at ~1 req/sec, so the geocode step is intentionally throttled to 3 concurrent requests
-- x/twitter following lookup needs a paid api tier, so this only supports github for now
+* A GitHub location is whatever the user entered in their profile, not GPS coordinates. Locations such as `earth`, `remote`, or made-up places may fail to geocode and will be skipped.
+* The in-memory geocode cache resets after every server restart or serverless cold start. For larger traffic, this could be moved to Redis or a database.
+* Nominatim's usage policy limits requests to around one per second, so geocoding is intentionally throttled.
+* X/Twitter following data requires a paid API tier, so GitHub is the only supported platform for now.
