@@ -33,7 +33,13 @@ export default function Home() {
     return new URLSearchParams(window.location.search).get("u") ?? "";
   });
   const [loading, setLoading] = useState(false);
-  const [sharing, setSharing] = useState(false);
+  const [shareStage, setShareStage] = useState<"idle" | "capturing" | "ready">(
+    "idle",
+  );
+  const [pendingShare, setPendingShare] = useState<{
+    file: File;
+    text: string;
+  } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [data, setData] = useState<ApiResponse | null>(null);
   const [lastQuery, setLastQuery] = useState("");
@@ -102,34 +108,64 @@ export default function Home() {
     return points;
   }, [data]);
 
-  async function handleShare() {
-    if (!data || globePoints.length === 0 || sharing) return;
-    setSharing(true);
+  function tweetIntentUrl(text: string) {
+    return `https://x.com/intent/tweet?text=${encodeURIComponent(text)}`;
+  }
+
+  async function handleShareClick() {
+    if (!data || globePoints.length === 0) return;
+
+    if (shareStage === "ready" && pendingShare) {
+      try {
+        await navigator.share({
+          files: [pendingShare.file],
+          text: pendingShare.text,
+          title: "gitphere",
+        });
+      } catch (err) {
+        if (!(err instanceof DOMException && err.name === "AbortError")) {
+          setError(
+            err instanceof Error ? err.message : "couldn't share the gif",
+          );
+        }
+      } finally {
+        setShareStage("idle");
+        setPendingShare(null);
+      }
+      return;
+    }
+
+    if (shareStage !== "idle") return;
+
+    const shareLink = window.location.href;
+    const text = `here's my github network, mapped on a globe\n\n${shareLink}`;
+    const canFileShare =
+      typeof navigator.share === "function" &&
+      typeof navigator.canShare === "function";
+
+    if (!canFileShare) {
+      window.open(tweetIntentUrl(text), "_blank", "noreferrer");
+      return;
+    }
+
+    setShareStage("capturing");
     setError(null);
     try {
       const blob = await captureGlobeGif(globePoints);
-      const shareLink = window.location.href;
-      const text = `here's my github network, mapped on a globe\n\n${shareLink}`;
       const file = new File([blob], `${lastQuery || "gitphere"}.gif`, {
         type: "image/gif",
       });
 
-      if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({ files: [file], text, title: "gitphere" });
+      if (navigator.canShare({ files: [file] })) {
+        setPendingShare({ file, text });
+        setShareStage("ready");
       } else {
-        window.open(
-          `https://x.com/intent/tweet?text=${encodeURIComponent(text)}`,
-          "_blank",
-          "noreferrer",
-        );
+        window.open(tweetIntentUrl(text), "_blank", "noreferrer");
+        setShareStage("idle");
       }
     } catch (err) {
-      if (err instanceof DOMException && err.name === "AbortError") {
-        return;
-      }
       setError(err instanceof Error ? err.message : "couldn't create the gif");
-    } finally {
-      setSharing(false);
+      setShareStage("idle");
     }
   }
 
@@ -144,20 +180,24 @@ export default function Home() {
           </h1>
 
           <Button
-            variant="outline"
+            variant={shareStage === "ready" ? "default" : "outline"}
             size="sm"
-            onClick={handleShare}
-            disabled={!canShare || sharing}
+            onClick={handleShareClick}
+            disabled={!canShare || shareStage === "capturing"}
             aria-label="share on x"
             className="order-3 h-8 w-8 shrink-0 p-0 sm:order-0 sm:w-auto sm:gap-1.5 sm:px-3"
           >
-            {sharing ? (
+            {shareStage === "capturing" ? (
               <Spinner className="size-3.5" />
             ) : (
               <Share2 className="h-3.5 w-3.5" />
             )}
             <span className="hidden text-xs sm:inline">
-              {sharing ? "capturing…" : "share"}
+              {shareStage === "capturing"
+                ? "capturing…"
+                : shareStage === "ready"
+                  ? "tap to share"
+                  : "share"}
             </span>
           </Button>
         </div>
