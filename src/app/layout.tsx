@@ -15,6 +15,17 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "gitphere",
   description: "See your GitHub network on a map.",
+  openGraph: {
+    title: "gitphere",
+    description: "See your GitHub network on a map.",
+    images: ["/og-image.png"],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "gitphere",
+    description: "See your GitHub network on a map.",
+    images: ["/og-image.png"],
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
