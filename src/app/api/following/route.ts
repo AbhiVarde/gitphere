@@ -21,7 +21,7 @@ const geocodeCache = new Map<string, { lat: number; lng: number } | null>();
 function githubHeaders() {
   const headers: Record<string, string> = {
     Accept: "application/vnd.github+json",
-    "User-Agent": "gh-globe-app",
+    "User-Agent": "gitphere-app",
   };
   if (process.env.GITHUB_TOKEN) {
     headers.Authorization = `Bearer ${process.env.GITHUB_TOKEN}`;
@@ -29,10 +29,12 @@ function githubHeaders() {
   return headers;
 }
 
-async function fetchFollowing(username: string): Promise<{ login: string; avatar_url: string }[]> {
+async function fetchFollowing(
+  username: string,
+): Promise<{ login: string; avatar_url: string }[]> {
   const res = await fetch(
     `https://api.github.com/users/${username}/following?per_page=100`,
-    { headers: githubHeaders(), cache: "no-store" }
+    { headers: githubHeaders(), cache: "no-store" },
   );
   if (res.status === 404) {
     throw new Error("github user not found");
@@ -68,7 +70,9 @@ async function fetchOriginUser(username: string): Promise<GithubUser> {
   return res.json();
 }
 
-async function geocode(location: string): Promise<{ lat: number; lng: number } | null> {
+async function geocode(
+  location: string,
+): Promise<{ lat: number; lng: number } | null> {
   const key = location.trim().toLowerCase();
   if (geocodeCache.has(key)) {
     return geocodeCache.get(key) ?? null;
@@ -76,9 +80,9 @@ async function geocode(location: string): Promise<{ lat: number; lng: number } |
   try {
     const res = await fetch(
       `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(
-        location
+        location,
       )}`,
-      { headers: { "User-Agent": "gh-globe-app (personal project)" } }
+      { headers: { "User-Agent": "gitphere-app (personal project)" } },
     );
     if (!res.ok) {
       geocodeCache.set(key, null);
@@ -89,7 +93,10 @@ async function geocode(location: string): Promise<{ lat: number; lng: number } |
       geocodeCache.set(key, null);
       return null;
     }
-    const result = { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) };
+    const result = {
+      lat: parseFloat(data[0].lat),
+      lng: parseFloat(data[0].lon),
+    };
     geocodeCache.set(key, result);
     return result;
   } catch {
@@ -101,7 +108,7 @@ async function geocode(location: string): Promise<{ lat: number; lng: number } |
 async function mapWithConcurrency<T, R>(
   items: T[],
   limit: number,
-  fn: (item: T) => Promise<R>
+  fn: (item: T) => Promise<R>,
 ): Promise<R[]> {
   const results: R[] = new Array(items.length);
   let index = 0;
@@ -119,7 +126,10 @@ export async function GET(req: NextRequest) {
   const username = req.nextUrl.searchParams.get("username")?.trim();
 
   if (!username) {
-    return NextResponse.json({ error: "username is required" }, { status: 400 });
+    return NextResponse.json(
+      { error: "username is required" },
+      { status: 400 },
+    );
   }
 
   try {
@@ -147,10 +157,13 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ origin, markers: [], total: 0, resolved: 0 });
     }
 
-    const users = await mapWithConcurrency(following, 5, (f) => fetchUser(f.login));
+    const users = await mapWithConcurrency(following, 5, (f) =>
+      fetchUser(f.login),
+    );
 
     const withLocation = users.filter(
-      (u): u is GithubUser & { location: string } => !!u.location && u.location.trim().length > 0
+      (u): u is GithubUser & { location: string } =>
+        !!u.location && u.location.trim().length > 0,
     );
 
     const markers = await mapWithConcurrency(withLocation, 3, async (u) => {

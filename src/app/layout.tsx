@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "gh globe",
-  description: "see where the people a github user follows are based",
+  title: "gitphere",
+  description: "See your GitHub network on a map.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

@@ -1,10 +1,10 @@
-# gh globe
+# gitphere
 
-paste a github username, see where the people they follow are based, plotted on a cobe globe.
+See your GitHub network on a map.
 
 ## stack
 
-- next.js 16 (app router) + typescript
+- next.js 15 (app router) + typescript
 - shadcn/ui primitives (button, input, card) — hand-added, not pulled from the registry
 - [cobe](https://cobe.vercel.app) v2 for the webgl globe
 - github rest api for the following list + per-user location

@@ -104,27 +104,29 @@ export default function Home() {
 
   async function handleShare() {
     if (!data || globePoints.length === 0 || sharing) return;
-
-    const gifWindow = window.open("", "_blank");
-    const tweetWindow = window.open("", "_blank");
-
     setSharing(true);
     setError(null);
     try {
       const blob = await captureGlobeGif(globePoints);
-      const gifUrl = URL.createObjectURL(blob);
-
-      if (gifWindow) gifWindow.location.href = gifUrl;
-
       const shareLink = window.location.href;
-      const text = `mapped where ${lastQuery}'s github following are based, on a globe\n\n${shareLink}`;
-      const tweetUrl = `https://x.com/intent/tweet?text=${encodeURIComponent(text)}`;
-      if (tweetWindow) tweetWindow.location.href = tweetUrl;
+      const text = `here's my github network, mapped on a globe\n\n${shareLink}`;
+      const file = new File([blob], `${lastQuery || "gitphere"}.gif`, {
+        type: "image/gif",
+      });
 
-      setTimeout(() => URL.revokeObjectURL(gifUrl), 30000);
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({ files: [file], text, title: "gitphere" });
+      } else {
+        window.open(
+          `https://x.com/intent/tweet?text=${encodeURIComponent(text)}`,
+          "_blank",
+          "noreferrer",
+        );
+      }
     } catch (err) {
-      gifWindow?.close();
-      tweetWindow?.close();
+      if (err instanceof DOMException && err.name === "AbortError") {
+        return;
+      }
       setError(err instanceof Error ? err.message : "couldn't create the gif");
     } finally {
       setSharing(false);
@@ -138,7 +140,7 @@ export default function Home() {
       <header className="sticky top-0 z-999 flex shrink-0 flex-col gap-2 border-b border-neutral-900 bg-black/95 px-4 py-3 backdrop-blur sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:px-5">
         <div className="flex items-center justify-between gap-2 sm:contents">
           <h1 className="text-sm font-medium tracking-tight text-white">
-            gh globe
+            gitphere
           </h1>
 
           <Button
