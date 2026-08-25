@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Globe as GlobeIcon } from "lucide-react";
+import { Download, Globe as GlobeIcon } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
 import { Globe, type AvatarPoint } from "@/components/globe";
 import { Input } from "@/components/ui/input";
@@ -46,6 +46,7 @@ export default function HomeClient() {
     return new URLSearchParams(window.location.search).get("u") ?? "";
   });
   const [loading, setLoading] = useState(false);
+  const [downloading, setDownloading] = useState(false);
   const [shareStage, setShareStage] = useState<"idle" | "capturing" | "ready">(
     "idle",
   );
@@ -190,6 +191,27 @@ export default function HomeClient() {
 
   const canShare = !!data && globePoints.length > 0;
 
+  async function handleDownload() {
+    if (!canShare || downloading) return;
+    setDownloading(true);
+    setError(null);
+    try {
+      const blob = await captureGlobeGif(globePoints);
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `${lastQuery || "gitphere"}.gif`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 15000);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "couldn't create the gif");
+    } finally {
+      setDownloading(false);
+    }
+  }
+
   return (
     <main className="flex h-dvh flex-col overflow-x-hidden overflow-y-auto bg-black text-white">
       <header className="sticky top-0 z-999 flex shrink-0 flex-col gap-2 border-b border-neutral-900 bg-black/95 px-4 py-3 backdrop-blur sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:px-5">
@@ -198,23 +220,40 @@ export default function HomeClient() {
             gitphere
           </h1>
 
-          <Button
-            variant={shareStage === "ready" ? "default" : "outline"}
-            size="sm"
-            onClick={handleShareClick}
-            disabled={!canShare || shareStage === "capturing"}
-            aria-label="share on x"
-            className="order-3 h-8 shrink-0 gap-1.5 px-3"
-          >
-            {shareStage === "capturing" ? (
-              <Spinner className="size-3.5" />
-            ) : (
-              <XLogo className="size-3.5" />
-            )}
-            <span className="text-xs">
-              {shareStage === "capturing" ? "preparing…" : "share on X"}
-            </span>
-          </Button>
+          <div className="order-3 flex items-center gap-2 sm:order-0">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleDownload}
+              disabled={!canShare || downloading}
+              aria-label="download gif"
+              className="h-8 w-8 shrink-0 p-0"
+            >
+              {downloading ? (
+                <Spinner className="size-3.5" />
+              ) : (
+                <Download className="size-3.5" />
+              )}
+            </Button>
+
+            <Button
+              variant={shareStage === "ready" ? "default" : "outline"}
+              size="sm"
+              onClick={handleShareClick}
+              disabled={!canShare || shareStage === "capturing"}
+              aria-label="share on x"
+              className="h-8 shrink-0 gap-1.5 px-3"
+            >
+              {shareStage === "capturing" ? (
+                <Spinner className="size-3.5" />
+              ) : (
+                <XLogo className="size-3.5" />
+              )}
+              <span className="text-xs">
+                {shareStage === "capturing" ? "preparing…" : "share on X"}
+              </span>
+            </Button>
+          </div>
         </div>
 
         <form onSubmit={handleSubmit} className="flex w-full gap-2 sm:max-w-xs">

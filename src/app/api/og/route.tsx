@@ -1,13 +1,16 @@
 import { ImageResponse } from "next/og";
-import { readFile } from "node:fs/promises";
-import path from "node:path";
 
 export const runtime = "nodejs";
 
-async function getGlobeDataUri() {
-  const filePath = path.join(process.cwd(), "public", "og-globe.png");
-  const buffer = await readFile(filePath);
-  return `data:image/png;base64,${buffer.toString("base64")}`;
+async function getGlobeDataUri(requestUrl: string) {
+  try {
+    const res = await fetch(new URL("/og-globe.png", requestUrl));
+    if (!res.ok) return null;
+    const buffer = await res.arrayBuffer();
+    return `data:image/png;base64,${Buffer.from(buffer).toString("base64")}`;
+  } catch {
+    return null;
+  }
 }
 
 async function getGithubUser(username: string) {
@@ -38,7 +41,7 @@ export async function GET(req: Request) {
   const username = searchParams.get("u")?.trim();
 
   const [globeDataUri, user] = await Promise.all([
-    getGlobeDataUri(),
+    getGlobeDataUri(req.url),
     username ? getGithubUser(username) : Promise.resolve(null),
   ]);
 
@@ -53,34 +56,44 @@ export async function GET(req: Request) {
         width: "100%",
         height: "100%",
         display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
         backgroundColor: "#000000",
         position: "relative",
       }}
     >
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={globeDataUri}
-        alt=""
-        width={520}
-        height={520}
-        style={{
-          position: "absolute",
-          top: 55,
-          left: "50%",
-          transform: "translateX(-50%)",
-          opacity: 0.9,
-        }}
-      />
+      {globeDataUri && (
+        <div
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={globeDataUri}
+            alt=""
+            width={520}
+            height={520}
+            style={{ opacity: 0.9 }}
+          />
+        </div>
+      )}
 
       <div
         style={{
+          position: "relative",
+          zIndex: 10,
+          width: "100%",
+          height: "100%",
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          zIndex: 10,
+          justifyContent: "center",
         }}
       >
         <div
@@ -142,6 +155,7 @@ export async function GET(req: Request) {
           bottom: 28,
           fontSize: 20,
           color: "#525252",
+          zIndex: 10,
         }}
       >
         gitphere
