@@ -227,61 +227,27 @@ export default function HomeClient() {
 
   return (
     <main className="flex h-dvh flex-col overflow-x-hidden overflow-y-auto bg-black text-white">
-      <header className="sticky top-0 z-999 flex shrink-0 flex-col gap-2 border-b border-neutral-900 bg-black/95 px-4 py-3 backdrop-blur sm:grid sm:grid-cols-[auto_1fr_auto] sm:items-center sm:gap-4 sm:px-5">
+      <header className="sticky top-0 z-[999] flex shrink-0 flex-col gap-2 border-b border-neutral-900 bg-black/95 px-4 py-3 backdrop-blur sm:grid sm:grid-cols-[auto_1fr_auto] sm:items-center sm:gap-4 sm:px-5">
         <div className="flex items-center justify-between gap-2 sm:contents">
           <h1 className="text-sm font-medium tracking-tight text-white">
             gitphere
           </h1>
 
-          <div className="order-3 flex items-center gap-2">
+          <a
+            href="https://github.com/AbhiVarde/gitphere"
+            target="_blank"
+            rel="noreferrer"
+            className="order-3"
+          >
             <Button
               variant="outline"
               size="sm"
-              onClick={handleDownload}
-              disabled={!canShare || downloading}
-              aria-label="download gif"
+              aria-label="view on github"
               className="h-8 w-8 shrink-0 p-0"
             >
-              {downloading ? (
-                <Spinner className="size-3.5" />
-              ) : (
-                <Download className="size-3.5" />
-              )}
+              <GithubLogo className="size-3.5" />
             </Button>
-
-            <Button
-              variant={shareStage === "ready" ? "default" : "outline"}
-              size="sm"
-              onClick={handleShareClick}
-              disabled={!canShare || shareStage === "capturing"}
-              aria-label="share on x"
-              className="h-8 shrink-0 gap-1.5 px-3"
-            >
-              {shareStage === "capturing" ? (
-                <Spinner className="size-3.5" />
-              ) : (
-                <XLogo className="size-3.5" />
-              )}
-              <span className="text-xs">
-                {shareStage === "capturing" ? "preparing…" : "share on X"}
-              </span>
-            </Button>
-
-            <a
-              href="https://github.com/AbhiVarde/gitphere"
-              target="_blank"
-              rel="noreferrer"
-            >
-              <Button
-                variant="outline"
-                size="sm"
-                aria-label="view on github"
-                className="h-8 w-8 shrink-0 p-0"
-              >
-                <GithubLogo className="size-3.5" />
-              </Button>
-            </a>
-          </div>
+          </a>
         </div>
 
         <form
@@ -312,7 +278,46 @@ export default function HomeClient() {
       )}
 
       <div className="grid flex-1 grid-cols-1 md:grid-cols-[1fr_340px] md:overflow-hidden">
-        <div className="flex items-center justify-center p-4 sm:p-6">
+        <div className="relative flex items-center justify-center p-4 sm:p-6">
+          <div className="absolute right-4 top-4 z-20 flex items-center gap-2 sm:right-6 sm:top-6">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleDownload}
+              disabled={!canShare || downloading}
+              aria-label="download gif"
+              className="h-8 w-8 shrink-0 border-neutral-800 bg-black/70 p-0 backdrop-blur"
+            >
+              {downloading ? (
+                <Spinner className="size-3.5" />
+              ) : (
+                <Download className="size-3.5" />
+              )}
+            </Button>
+
+            <Button
+              variant={shareStage === "ready" ? "default" : "outline"}
+              size="sm"
+              onClick={handleShareClick}
+              disabled={!canShare || shareStage === "capturing"}
+              aria-label="share on x"
+              className={
+                shareStage === "ready"
+                  ? "h-8 shrink-0 gap-1.5 px-3"
+                  : "h-8 shrink-0 gap-1.5 border-neutral-800 bg-black/70 px-3 backdrop-blur"
+              }
+            >
+              {shareStage === "capturing" ? (
+                <Spinner className="size-3.5" />
+              ) : (
+                <XLogo className="size-3.5" />
+              )}
+              <span className="text-xs">
+                {shareStage === "capturing" ? "preparing…" : "share on X"}
+              </span>
+            </Button>
+          </div>
+
           <Globe points={globePoints} />
         </div>
 
