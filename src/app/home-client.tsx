@@ -227,7 +227,7 @@ export default function HomeClient() {
 
   return (
     <main className="flex h-dvh flex-col overflow-x-hidden overflow-y-auto bg-black text-white">
-      <header className="sticky top-0 z-[999] flex shrink-0 flex-col gap-2 border-b border-neutral-900 bg-black/95 px-4 py-3 backdrop-blur sm:grid sm:grid-cols-[auto_1fr_auto] sm:items-center sm:gap-4 sm:px-5">
+      <header className="sticky top-0 z-999 flex shrink-0 flex-col gap-2 border-b border-neutral-900 bg-black/95 px-4 py-3 backdrop-blur sm:grid sm:grid-cols-[auto_1fr_auto] sm:items-center sm:gap-4 sm:px-5">
         <div className="flex items-center justify-between gap-2 sm:contents">
           <h1 className="text-sm font-medium tracking-tight text-white">
             gitphere
