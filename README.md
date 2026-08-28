@@ -39,6 +39,25 @@ A token with no scopes is enough because the app only reads public profiles.
 4. Each unique location is geocoded once through Nominatim and cached in memory.
 5. Resolved latitude and longitude coordinates are passed to the globe as markers.
 
+## use it on your own site
+
+Add the globe to any Next.js project with the shadcn CLI:
+
+```bash
+npx shadcn add https://gitphere.vercel.app/r/gitphere-globe.json
+```
+
+This copies the component source into your project. It doesn't call gitphere's servers. Add your own optional `GITHUB_TOKEN` (see above), then drop it in:
+
+```tsx
+import { GitphereGlobe } from "@/components/gitphere-globe";
+
+<GitphereGlobe username="yourgithubusername" size={400} theme="light" />;
+```
+
+- `size`: diameter in pixels. Defaults to `320`.
+- `theme`: `"dark"` or `"light"`. Defaults to `"dark"`.
+
 ## embed your badge
 
 drop this in your GitHub profile README, or any markdown:

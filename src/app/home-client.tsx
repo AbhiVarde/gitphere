@@ -318,7 +318,9 @@ export default function HomeClient() {
             </Button>
           </div>
 
-          <Globe points={globePoints} />
+          <div className="mx-auto w-full max-w-[320px] sm:max-w-115 md:max-w-140 lg:max-w-155">
+            <Globe points={globePoints} size={620} />
+          </div>
         </div>
 
         <aside className="flex flex-col border-t border-neutral-900 md:min-h-0 md:border-l md:border-t-0">
