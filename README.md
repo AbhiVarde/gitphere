@@ -1,53 +1,18 @@
 # Gitphere
 
-Paste a GitHub username and see where the people they follow are based, plotted on a Cobe globe.
+See where the people you follow on GitHub are based, plotted on a rotating Cobe globe.
 
-## Stack
+Enter a GitHub username to map their public profile locations around the world.
 
-- Next.js 16 with App Router and TypeScript
-- shadcn/ui primitives for Button, Input, and Card, added manually
-- [Cobe](https://cobe.vercel.app) v2 for the WebGL globe
-- GitHub REST API for the following list and user locations
-- Nominatim with OpenStreetMap for free geocoding, with an in-memory cache
+[Live Demo](https://gitphere.vercel.app)
 
-## Run it
+## Install
 
-```bash
-npm install
-npm run dev
-```
-
-Open `localhost:3000`, enter a GitHub username such as `AbhiVarde`, and hit **Go**.
-
-## Optional: Increase GitHub Rate Limits
-
-Unauthenticated GitHub requests are limited to 60 requests per hour, shared across the app. For higher limits, add a GitHub token:
-
-```bash
-# .env.local
-
-GITHUB_TOKEN=ghp_xxxxxxxxxxxx
-```
-
-A token with no scopes is enough because the app only reads public profiles.
-
-## How It Works
-
-1. `GET /api/following?username=X` calls GitHub's `GET /users/{username}/following` endpoint.
-2. For each user, the app fetches `GET /users/{login}` to read their profile location.
-3. Users without a location are skipped because GitHub stores locations as free text.
-4. Each unique location is geocoded once through Nominatim and cached in memory.
-5. Resolved latitude and longitude coordinates are passed to the globe as markers.
-
-## use it on your own site
-
-Add the globe to any Next.js project with the shadcn CLI:
+Use the globe in any Next.js project with the shadcn CLI.
 
 ```bash
 npx shadcn add https://gitphere.vercel.app/r/gitphere-globe.json
 ```
-
-This copies the component source into your project. It doesn't call gitphere's servers. Add your own optional `GITHUB_TOKEN` (see above), then drop it in:
 
 ```tsx
 import { GitphereGlobe } from "@/components/gitphere-globe";
@@ -55,22 +20,90 @@ import { GitphereGlobe } from "@/components/gitphere-globe";
 <GitphereGlobe username="yourgithubusername" size={400} theme="light" />;
 ```
 
-- `size`: diameter in pixels. Defaults to `320`.
-- `theme`: `"dark"` or `"light"`. Defaults to `"dark"`.
+| Prop       | Default  | Description              |
+| ---------- | -------- | ------------------------ |
+| `username` | Required | GitHub username          |
+| `size`     | `320`    | Globe diameter in pixels |
+| `theme`    | `dark`   | `dark` or `light`        |
 
-## embed your badge
+The component is copied directly into your project and does not use Gitphere's servers.
 
-drop this in your GitHub profile README, or any markdown:
+## GitHub Badge
+
+Add a Gitphere badge to any GitHub profile README.
 
 ```md
 [![gitphere](https://gitphere.vercel.app/api/badge/YOUR_USERNAME.svg)](https://gitphere.vercel.app/?u=YOUR_USERNAME)
 ```
 
-renders a small card, your avatar, name, and how many of your following got mapped, generated fresh from the GitHub API, cached for a day so repeat views don't hit rate limits.
+The badge shows the user's avatar, name, and the number of following accounts that were mapped.
 
-## known limitations
+Badge responses are cached for one day.
 
-- A GitHub location is whatever the user entered in their profile, not GPS coordinates. Locations such as `earth`, `remote`, or made-up places may fail to geocode and will be skipped.
-- The in-memory geocode cache resets after every server restart or serverless cold start. For larger traffic, this could be moved to Redis or a database.
-- Nominatim's usage policy limits requests to around one per second, so geocoding is intentionally throttled.
-- X/Twitter following data requires a paid API tier, so GitHub is the only supported platform for now.
+## Features
+
+- Globe view with locations from followed GitHub accounts
+- GIF export of the current globe
+- Share to X with a pre-filled post
+- Direct GIF sharing on supported mobile browsers
+- Dynamic OG images for shared profiles
+- Embeddable Next.js globe component
+- GitHub profile README badge
+
+## Run locally
+
+```bash
+git clone https://github.com/AbhiVarde/gitphere.git
+cd gitphere
+
+npm install
+npm run dev
+```
+
+Open `http://localhost:3000` and enter a GitHub username.
+
+### GitHub Token
+
+GitHub allows 60 unauthenticated API requests per hour.
+
+For a higher rate limit, create `.env.local`:
+
+```bash
+GITHUB_TOKEN=ghp_xxxxxxxxxxxx
+```
+
+A token with no scopes is sufficient since Gitphere only reads public profiles.
+
+## How it works
+
+1. Fetch the user's following list from GitHub.
+2. Fetch each profile to read its public location.
+3. Skip profiles without a location.
+4. Geocode unique locations using Nominatim.
+5. Cache geocoded locations in memory.
+6. Render the coordinates on the Cobe globe.
+
+## Stack
+
+- Next.js 16
+- TypeScript
+- App Router
+- shadcn/ui
+- [COBE](https://github.com/shuding/cobe)
+- GitHub REST API
+- Nominatim
+- OpenStreetMap
+
+## Limitations
+
+- GitHub locations are free text and are not GPS coordinates.
+- Invalid or ambiguous locations may not resolve.
+- The in-memory geocoding cache resets after restarts and serverless cold starts.
+- Nominatim requests are throttled to respect its usage policy.
+- X following data is not supported because its API requires a paid tier.
+
+## Credits
+
+Gitphere is built with [COBE](https://github.com/shuding/cobe), a lightweight WebGL globe library created by [Shu Ding](https://github.com/shuding).
+
+Thanks to Shu and the contributors for building and maintaining COBE.

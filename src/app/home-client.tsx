@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Download, Globe as GlobeIcon } from "lucide-react";
+import { Check, Copy, Download, Globe as GlobeIcon } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
 import { Globe, type AvatarPoint } from "@/components/globe";
 import { Input } from "@/components/ui/input";
@@ -70,6 +70,7 @@ export default function HomeClient() {
   const [error, setError] = useState<string | null>(null);
   const [data, setData] = useState<ApiResponse | null>(null);
   const [lastQuery, setLastQuery] = useState("");
+  const [copied, setCopied] = useState(false);
 
   async function runSearch(name: string) {
     const trimmed = name.trim();
@@ -203,6 +204,18 @@ export default function HomeClient() {
   }
 
   const canShare = !!data && globePoints.length > 0;
+  const installCommand =
+    "npx shadcn add https://gitphere.vercel.app/r/gitphere-globe.json";
+
+  async function handleCopyInstall() {
+    try {
+      await navigator.clipboard.writeText(installCommand);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // clipboard API unavailable, nothing to fall back to here
+    }
+  }
 
   async function handleDownload() {
     if (!canShare || downloading) return;
@@ -399,6 +412,38 @@ export default function HomeClient() {
                 </p>
               </div>
             )}
+          </div>
+
+          <div className="shrink-0 border-t border-neutral-900 px-4 py-3">
+            <p className="text-xs text-neutral-500">
+              want this on your own site? same globe, with download and share on
+              X built in.
+            </p>
+            <div className="relative mt-2 rounded-md border border-neutral-800 bg-neutral-950 px-3 py-2 pr-9">
+              <code className="block break-all text-[11px] leading-relaxed text-neutral-300">
+                {installCommand}
+              </code>
+              <button
+                type="button"
+                onClick={handleCopyInstall}
+                aria-label="copy install command"
+                className="absolute right-2 top-2 text-neutral-500 transition-colors hover:text-neutral-300"
+              >
+                {copied ? (
+                  <Check className="size-3.5" />
+                ) : (
+                  <Copy className="size-3.5" />
+                )}
+              </button>
+            </div>
+            <a
+              href="https://github.com/AbhiVarde/gitphere#use-it-on-your-own-site"
+              target="_blank"
+              rel="noreferrer"
+              className="mt-1.5 inline-block text-[11px] text-neutral-600 underline underline-offset-2 hover:text-neutral-400"
+            >
+              read the docs
+            </a>
           </div>
         </aside>
       </div>
