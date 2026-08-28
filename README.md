@@ -44,7 +44,7 @@ A token with no scopes is enough because the app only reads public profiles.
 drop this in your GitHub profile README, or any markdown:
 
 ```md
-![gitphere](https://gitphere.vercel.app/api/badge/AbhiVarde.svg)
+[![gitphere](https://gitphere.vercel.app/api/badge/YOUR_USERNAME.svg)](https://gitphere.vercel.app/?u=YOUR_USERNAME)
 ```
 
 renders a small card, your avatar, name, and how many of your following got mapped, generated fresh from the GitHub API, cached for a day so repeat views don't hit rate limits.
