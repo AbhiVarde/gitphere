@@ -33,7 +33,7 @@
         {
           "path": "src/app/api/gitphere-following/route.ts",
           "target": "app/api/gitphere-following/route.ts",
-          "type": "registry:file"
+          "type": "registry:lib"
         }
       ]
     }
