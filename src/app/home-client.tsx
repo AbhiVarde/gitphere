@@ -245,7 +245,6 @@ export default function HomeClient() {
           <h1 className="text-sm font-medium tracking-tight text-white">
             gitphere
           </h1>
-
           <a
             href="https://github.com/AbhiVarde/gitphere"
             target="_blank"
@@ -292,7 +291,7 @@ export default function HomeClient() {
 
       <div className="grid flex-1 grid-cols-1 md:grid-cols-[1fr_340px] md:overflow-hidden">
         <div className="relative flex items-center justify-center p-4 sm:p-6">
-          <div className="absolute right-4 top-4 z-20 flex items-center gap-2 sm:right-6 sm:top-6">
+          <div className="absolute right-4 top-4 z-20 hidden items-center gap-2 sm:right-6 sm:top-6 md:flex">
             <Button
               variant="outline"
               size="sm"
@@ -313,7 +312,6 @@ export default function HomeClient() {
               size="sm"
               onClick={handleShareClick}
               disabled={!canShare || shareStage === "capturing"}
-              aria-label="share on x"
               className={
                 shareStage === "ready"
                   ? "h-8 shrink-0 gap-1.5 px-3"
@@ -414,20 +412,20 @@ export default function HomeClient() {
             )}
           </div>
 
-          <div className="shrink-0 border-t border-neutral-900 px-4 py-3">
+          <div className="hidden shrink-0 border-t border-neutral-900 px-4 py-3 md:block">
             <p className="text-xs text-neutral-500">
               want this on your own site? same globe, with download and share on
               X built in.
             </p>
-            <div className="relative mt-2 rounded-md border border-neutral-800 bg-neutral-950 px-3 py-2 pr-9">
-              <code className="block break-all text-[11px] leading-relaxed text-neutral-300">
+            <div className="relative mt-2 rounded-md border border-neutral-800 bg-neutral-950 py-2 pl-3 pr-9">
+              <code className="block overflow-x-auto whitespace-nowrap text-[11px] leading-relaxed text-neutral-300 scrollbar-none [&::-webkit-scrollbar]:hidden">
                 {installCommand}
               </code>
               <button
                 type="button"
                 onClick={handleCopyInstall}
                 aria-label="copy install command"
-                className="absolute right-2 top-2 text-neutral-500 transition-colors hover:text-neutral-300"
+                className="absolute right-2 top-2 shrink-0 bg-neutral-950 pl-2 text-neutral-500 transition-colors hover:text-neutral-300"
               >
                 {copied ? (
                   <Check className="size-3.5" />
@@ -447,6 +445,55 @@ export default function HomeClient() {
           </div>
         </aside>
       </div>
+
+      <footer className="sticky bottom-0 z-999 flex shrink-0 items-center gap-2 border-t border-neutral-900 bg-black/95 px-4 py-2.5 backdrop-blur md:hidden">
+        <code className="min-w-0 flex-1 truncate rounded border border-neutral-800 bg-neutral-950 px-2 py-1.5 text-[11px] text-neutral-300">
+          {installCommand}
+        </code>
+
+        <button
+          type="button"
+          onClick={handleCopyInstall}
+          aria-label="copy install command"
+          className="shrink-0 text-neutral-500 transition-colors hover:text-neutral-300"
+        >
+          {copied ? (
+            <Check className="size-3.5" />
+          ) : (
+            <Copy className="size-3.5" />
+          )}
+        </button>
+
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleDownload}
+          disabled={!canShare || downloading}
+          aria-label="download gif"
+          className="h-8 w-8 shrink-0 p-0"
+        >
+          {downloading ? (
+            <Spinner className="size-3.5" />
+          ) : (
+            <Download className="size-3.5" />
+          )}
+        </Button>
+
+        <Button
+          variant={shareStage === "ready" ? "default" : "outline"}
+          size="sm"
+          onClick={handleShareClick}
+          disabled={!canShare || shareStage === "capturing"}
+          aria-label="share on x"
+          className="h-8 w-8 shrink-0 p-0"
+        >
+          {shareStage === "capturing" ? (
+            <Spinner className="size-3.5" />
+          ) : (
+            <XLogo className="size-3.5" />
+          )}
+        </Button>
+      </footer>
     </main>
   );
 }
