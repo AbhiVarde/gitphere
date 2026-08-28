@@ -17,6 +17,22 @@ function githubHeaders(userAgent: string): Record<string, string> {
   return headers;
 }
 
+function describeGithubError(res: Response): string {
+  if (res.status === 404) {
+    return "github user not found";
+  }
+  if (res.status === 403 || res.status === 429) {
+    const remaining = res.headers.get("x-ratelimit-remaining");
+    if (remaining === "0") {
+      return process.env.GITHUB_TOKEN
+        ? "github rate limit exceeded even with a token — try again in a few minutes"
+        : "github rate limit exceeded (60 requests/hour without a token) — add a GITHUB_TOKEN env var to raise this limit, see the README";
+    }
+    return "github rejected the request (403) — check that your GITHUB_TOKEN, if set, is valid";
+  }
+  return `github lookup failed (${res.status})`;
+}
+
 /** Fetches a GitHub user, returning null on any failure (404, rate limit, network error). */
 export async function fetchGithubUser(
   username: string,
@@ -43,11 +59,8 @@ export async function fetchGithubUserOrThrow(
     headers: githubHeaders(userAgent),
     cache: "no-store",
   });
-  if (res.status === 404) {
-    throw new Error("github user not found");
-  }
   if (!res.ok) {
-    throw new Error(`github user lookup failed (${res.status})`);
+    throw new Error(describeGithubError(res));
   }
   return res.json();
 }
@@ -60,11 +73,8 @@ export async function fetchFollowing(
     `https://api.github.com/users/${username}/following?per_page=100`,
     { headers: githubHeaders(userAgent), cache: "no-store" },
   );
-  if (res.status === 404) {
-    throw new Error("github user not found");
-  }
   if (!res.ok) {
-    throw new Error(`github following lookup failed (${res.status})`);
+    throw new Error(describeGithubError(res));
   }
   return res.json();
 }
