@@ -4,11 +4,11 @@ Paste a GitHub username and see where the people they follow are based, plotted 
 
 ## Stack
 
-* Next.js 16 with App Router and TypeScript
-* shadcn/ui primitives for Button, Input, and Card, added manually
-* [Cobe](https://cobe.vercel.app) v2 for the WebGL globe
-* GitHub REST API for the following list and user locations
-* Nominatim with OpenStreetMap for free geocoding, with an in-memory cache
+- Next.js 16 with App Router and TypeScript
+- shadcn/ui primitives for Button, Input, and Card, added manually
+- [Cobe](https://cobe.vercel.app) v2 for the WebGL globe
+- GitHub REST API for the following list and user locations
+- Nominatim with OpenStreetMap for free geocoding, with an in-memory cache
 
 ## Run it
 
@@ -39,9 +39,19 @@ A token with no scopes is enough because the app only reads public profiles.
 4. Each unique location is geocoded once through Nominatim and cached in memory.
 5. Resolved latitude and longitude coordinates are passed to the globe as markers.
 
-## Known Limitations
+## embed your badge
 
-* A GitHub location is whatever the user entered in their profile, not GPS coordinates. Locations such as `earth`, `remote`, or made-up places may fail to geocode and will be skipped.
-* The in-memory geocode cache resets after every server restart or serverless cold start. For larger traffic, this could be moved to Redis or a database.
-* Nominatim's usage policy limits requests to around one per second, so geocoding is intentionally throttled.
-* X/Twitter following data requires a paid API tier, so GitHub is the only supported platform for now.
+drop this in your GitHub profile README, or any markdown:
+
+```md
+![gitphere](https://gitphere.vercel.app/api/badge/AbhiVarde.svg)
+```
+
+renders a small card, your avatar, name, and how many of your following got mapped, generated fresh from the GitHub API, cached for a day so repeat views don't hit rate limits.
+
+## known limitations
+
+- A GitHub location is whatever the user entered in their profile, not GPS coordinates. Locations such as `earth`, `remote`, or made-up places may fail to geocode and will be skipped.
+- The in-memory geocode cache resets after every server restart or serverless cold start. For larger traffic, this could be moved to Redis or a database.
+- Nominatim's usage policy limits requests to around one per second, so geocoding is intentionally throttled.
+- X/Twitter following data requires a paid API tier, so GitHub is the only supported platform for now.
