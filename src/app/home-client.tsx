@@ -283,6 +283,55 @@ export default function HomeClient() {
         </form>
       </header>
 
+      <div className="flex shrink-0 items-center gap-2 border-b border-neutral-900 bg-black px-4 py-2 md:hidden">
+        <code className="min-w-0 flex-1 truncate rounded border border-neutral-800 bg-neutral-950 px-2 py-1.5 text-[11px] text-neutral-300">
+          {installCommand}
+        </code>
+
+        <button
+          type="button"
+          onClick={handleCopyInstall}
+          aria-label="copy install command"
+          className="shrink-0 text-neutral-500 transition-colors hover:text-neutral-300"
+        >
+          {copied ? (
+            <Check className="size-3.5" />
+          ) : (
+            <Copy className="size-3.5" />
+          )}
+        </button>
+
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleDownload}
+          disabled={!canShare || downloading}
+          aria-label="download gif"
+          className="h-8 w-8 shrink-0 p-0"
+        >
+          {downloading ? (
+            <Spinner className="size-3.5" />
+          ) : (
+            <Download className="size-3.5" />
+          )}
+        </Button>
+
+        <Button
+          variant={shareStage === "ready" ? "default" : "outline"}
+          size="sm"
+          onClick={handleShareClick}
+          disabled={!canShare || shareStage === "capturing"}
+          aria-label="share on x"
+          className="h-8 w-8 shrink-0 p-0"
+        >
+          {shareStage === "capturing" ? (
+            <Spinner className="size-3.5" />
+          ) : (
+            <XLogo className="size-3.5" />
+          )}
+        </Button>
+      </div>
+
       {error && (
         <p className="shrink-0 px-6 py-2 text-center text-sm text-neutral-400">
           {error}
@@ -413,24 +462,24 @@ export default function HomeClient() {
           </div>
 
           <div className="hidden shrink-0 border-t border-neutral-900 px-4 py-3 md:block">
-            <p className="text-xs text-neutral-500">
+            <p className="text-sm text-neutral-500">
               want this on your own site? same globe, with download and share on
               X built in.
             </p>
             <div className="relative mt-2 rounded-md border border-neutral-800 bg-neutral-950 py-2 pl-3 pr-9">
-              <code className="block overflow-x-auto whitespace-nowrap text-[11px] leading-relaxed text-neutral-300 scrollbar-none [&::-webkit-scrollbar]:hidden">
+              <code className="block overflow-x-auto whitespace-nowrap text-[14px] leading-relaxed text-neutral-300 scrollbar-none [&::-webkit-scrollbar]:hidden">
                 {installCommand}
               </code>
               <button
                 type="button"
                 onClick={handleCopyInstall}
                 aria-label="copy install command"
-                className="absolute right-2 top-2 shrink-0 bg-neutral-950 pl-2 text-neutral-500 transition-colors hover:text-neutral-300"
+                className="cursor-pointer absolute right-2.5 top-2.5 shrink-0 bg-neutral-950 pl-2 text-neutral-500 transition-colors hover:text-neutral-300"
               >
                 {copied ? (
-                  <Check className="size-3.5" />
+                  <Check className="size-4" />
                 ) : (
-                  <Copy className="size-3.5" />
+                  <Copy className="size-4" />
                 )}
               </button>
             </div>
@@ -438,7 +487,7 @@ export default function HomeClient() {
               href="https://github.com/AbhiVarde/gitphere#use-it-on-your-own-site"
               target="_blank"
               rel="noreferrer"
-              className="mt-1.5 inline-block text-[11px] text-neutral-600 underline underline-offset-2 hover:text-neutral-400"
+              className="mt-1.5 inline-block text-[14px] text-neutral-600 underline underline-offset-2 hover:text-neutral-400"
             >
               read the docs
             </a>
