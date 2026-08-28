@@ -18,7 +18,49 @@ export type AvatarPoint = {
   isOrigin?: boolean;
 };
 
-export function Globe({ points }: { points: AvatarPoint[] }) {
+export type GlobeTheme = "dark" | "light";
+
+type ThemePalette = {
+  dark: number;
+  baseColor: [number, number, number];
+  markerColor: [number, number, number];
+  glowColor: [number, number, number];
+  arcColor: [number, number, number];
+  ring: string;
+  ringOrigin: string;
+};
+
+const THEMES: Record<GlobeTheme, ThemePalette> = {
+  dark: {
+    dark: 1,
+    baseColor: [0.16, 0.16, 0.17],
+    markerColor: [0.9, 0.9, 0.9],
+    glowColor: [0.35, 0.35, 0.38],
+    arcColor: [0.8, 0.8, 0.8],
+    ring: "ring-white/70",
+    ringOrigin: "ring-white",
+  },
+  light: {
+    dark: 0,
+    baseColor: [0.92, 0.92, 0.94],
+    markerColor: [0.1, 0.1, 0.12],
+    glowColor: [0.75, 0.75, 0.8],
+    arcColor: [0.2, 0.2, 0.22],
+    ring: "ring-black/40",
+    ringOrigin: "ring-black",
+  },
+};
+
+type GlobeProps = {
+  points: AvatarPoint[];
+  /** Diameter of the globe in pixels. Defaults to 320. */
+  size?: number;
+  /** Color palette for the globe surface, markers, and avatar rings. Defaults to "dark". */
+  theme?: GlobeTheme;
+};
+
+export function Globe({ points, size = 320, theme = "dark" }: GlobeProps) {
+  const palette = THEMES[theme];
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const avatarRefs = useRef<Map<string, HTMLDivElement>>(new Map());
@@ -77,14 +119,14 @@ export function Globe({ points }: { points: AvatarPoint[] }) {
       height: width.current * dpr,
       phi: 0,
       theta: THETA,
-      dark: 1,
+      dark: palette.dark,
       diffuse: 1.1,
       mapSamples: isSmallScreen ? 9000 : 17000,
       mapBrightness: 5,
-      baseColor: [0.16, 0.16, 0.17],
-      markerColor: [0.9, 0.9, 0.9],
-      glowColor: [0.35, 0.35, 0.38],
-      arcColor: [0.8, 0.8, 0.8],
+      baseColor: palette.baseColor,
+      markerColor: palette.markerColor,
+      glowColor: palette.glowColor,
+      arcColor: palette.arcColor,
       arcWidth: 0.55,
       arcHeight: 0.3,
       markers: buildMarkers(),
@@ -143,12 +185,14 @@ export function Globe({ points }: { points: AvatarPoint[] }) {
       globe.destroy();
       window.removeEventListener("resize", onResize);
     };
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- palette is derived from the theme prop, and a theme change should recreate the globe with fresh colors
+  }, [theme]);
 
   return (
     <div
       ref={containerRef}
-      className="relative mx-auto aspect-square w-full max-w-[320px] sm:max-w-115 md:max-w-140 lg:max-w-155"
+      className="relative mx-auto aspect-square w-full"
+      style={{ maxWidth: size }}
     >
       <canvas
         ref={canvasRef}
@@ -202,8 +246,8 @@ export function Globe({ points }: { points: AvatarPoint[] }) {
           <div
             className={
               p.isOrigin
-                ? "h-8 w-8 overflow-hidden rounded-full ring-2 ring-white sm:h-9 sm:w-9"
-                : "h-5 w-5 overflow-hidden rounded-full ring-1 ring-white/70 sm:h-6 sm:w-6"
+                ? `h-8 w-8 overflow-hidden rounded-full ring-2 ${palette.ringOrigin} sm:h-9 sm:w-9`
+                : `h-5 w-5 overflow-hidden rounded-full ring-1 ${palette.ring} sm:h-6 sm:w-6`
             }
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}

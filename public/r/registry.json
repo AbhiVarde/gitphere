@@ -1,0 +1,41 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry.json",
+  "name": "gitphere",
+  "homepage": "https://gitphere.vercel.app",
+  "items": [
+    {
+      "name": "gitphere-globe",
+      "type": "registry:component",
+      "title": "Gitphere globe",
+      "description": "A rotating globe showing where a GitHub user's following list is based, with adjustable size and theme. Fetches through your own API route using your own GitHub token — nothing calls gitphere's servers.",
+      "dependencies": ["cobe"],
+      "files": [
+        {
+          "path": "src/components/globe.tsx",
+          "target": "components/globe.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/gitphere-globe.tsx",
+          "target": "components/gitphere-globe.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/lib/globe-projection.ts",
+          "target": "lib/globe-projection.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "src/lib/github.ts",
+          "target": "lib/github.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "src/app/api/gitphere-following/route.ts",
+          "target": "app/api/gitphere-following/route.ts",
+          "type": "registry:file"
+        }
+      ]
+    }
+  ]
+}
