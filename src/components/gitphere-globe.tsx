@@ -112,10 +112,21 @@ export function GitphereGlobe({
     return (
       <div
         className={className}
-        style={{ width: size, height: size, maxWidth: size }}
+        style={{
+          width: size,
+          height: size,
+          maxWidth: size,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
         aria-busy="true"
         aria-label={`loading @${username}'s following map`}
-      />
+      >
+        <p className="text-sm text-white/40 animate-pulse">
+          mapping @{username}&apos;s network…
+        </p>
+      </div>
     );
   }
 
